@@ -7,6 +7,7 @@ const gulpif = require('gulp-if');
 const gutil = require('gulp-util');
 const buffer = require('gulp-buffer');
 const uglify = require('gulp-uglify');
+const eslint = require('gulp-eslint');
 const source = require('vinyl-source-stream');
 const browserify = require('browserify');
 const babelify = require('babelify');
@@ -77,6 +78,17 @@ gulp.task('phaser', () => {
 gulp.task('dependencies', ['phaser']);
 
 /**
+ * Lint the code to increase quality.
+ * All the actual configuration for eslint is in the file `.eslintrc`.
+ */
+gulp.task('lint', () => {
+    return gulp.src(`${SOURCE_DIR}/**/*.js`)
+        .pipe(eslint())
+        .pipe(eslint.format())
+        .pipe(eslint.failAfterError());
+});
+
+/**
  * Compile the application.
  * Pass the source files through Browserify & Babelify. If it's a DEBUG build,
  * extract the source map into it's own file, and if it's a RELEASE build
@@ -106,9 +118,10 @@ gulp.task('compile', () => {
 
 /**
  * Build the application.
- * Install the necessary dependencies and compile the application.
+ * Install the necessary dependencies, lint the source and then compile
+ * the application.
  */
-gulp.task('build', ['dependencies', 'compile']);
+gulp.task('build', ['dependencies', 'lint', 'compile']);
 
 /**
  * Rebuild the application.
